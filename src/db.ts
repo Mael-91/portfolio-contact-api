@@ -1,6 +1,13 @@
 import mysql from "mysql2/promise";
 import { env } from "./env";
 
+console.log("DB CONFIG USED:", {
+  host: env.dbHost,
+  port: env.dbPort,
+  database: env.dbName,
+  user: env.dbUser,
+});
+
 export const db = mysql.createPool({
   host: env.dbHost,
   port: env.dbPort,
@@ -12,3 +19,5 @@ export const db = mysql.createPool({
   queueLimit: 0,
   charset: "utf8mb4",
 });
+
+

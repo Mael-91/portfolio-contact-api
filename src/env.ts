@@ -10,6 +10,12 @@ dotenv.config({
   path: path.resolve(process.cwd(), envFile),
 });
 
+console.log("ENV FILE MODE:", process.env.NODE_ENV);
+console.log("DB HOST:", process.env.DB_HOST);
+console.log("DB PORT:", process.env.DB_PORT);
+console.log("DB NAME:", process.env.DB_NAME);
+console.log("DB USER:", process.env.DB_USER);
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || "production",
 
