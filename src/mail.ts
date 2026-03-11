@@ -18,21 +18,28 @@ export async function verifyMailer() {
   console.log("SMTP MailPlus prêt.");
 }
 
-function buildSubject(data: ContactInput): string {
-  switch (data.request_type) {
+function formatRequestType(type: ContactInput["request_type"]): string {
+  switch (type) {
     case "pro":
-      return "[Site] Nouveau devis professionnel";
+      return "Professionnel";
     case "part":
-      return "[Site] Nouveau devis particulier";
+      return "Particulier";
     case "info":
-      return "[Site] Nouvelle demande d'information";
+      return "Demande d'information";
+    default:
+      return type;
   }
 }
+
+function buildSubject(data: ContactInput): string {
+  return `[Portfolio] Nouvelle demande - ${formatRequestType(data.request_type)}`;
+}
+
 
 function buildText(data: ContactInput): string {
   const lines: string[] = [];
 
-  lines.push(`Type : ${data.request_type}`);
+  lines.push(`Type : ${formatRequestType(data.request_type)}`);
   lines.push("");
 
   if (data.first_name) lines.push(`Prénom : ${data.first_name}`);
@@ -67,7 +74,7 @@ export async function sendContactMail(data: ContactInput) {
   await transporter.sendMail({
     from: env.mailFrom,
     to: env.mailTo,
-    replyTo: data.email,
+    //replyTo: data.email,
     subject: buildSubject(data),
     text: buildText(data)
   });
