@@ -1,23 +1,19 @@
 import dotenv from "dotenv";
 import path from "path";
 
-const envFile =
-  process.env.NODE_ENV === "development"
-    ? ".env.development"
-    : ".env";
+const nodeEnv = process.env.NODE_ENV || "production";
 
-dotenv.config({
-  path: path.resolve(process.cwd(), envFile),
-});
+const envFile = nodeEnv === "development" ? ".env.development" : ".env";
+const envPath = path.resolve(process.cwd(), envFile);
 
-console.log("ENV FILE MODE:", process.env.NODE_ENV);
-console.log("DB HOST:", process.env.DB_HOST);
-console.log("DB PORT:", process.env.DB_PORT);
-console.log("DB NAME:", process.env.DB_NAME);
-console.log("DB USER:", process.env.DB_USER);
+dotenv.config({ path: envPath });
+
+console.log("Loaded env file:", envPath);
+console.log("NODE_ENV:", nodeEnv);
+console.log("DB_NAME from process.env:", process.env.DB_NAME);
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV || "production",
+  nodeEnv,
 
   port: Number(process.env.PORT || 4000),
 
@@ -38,12 +34,14 @@ export const env = {
   dbPass: process.env.DB_PASS || "",
 
   ipHashKey: process.env.IP_HASH_KEY || "",
-
-  privacyPolicyVersion: process.env.PRIVACY_POLICY_VERSION || "",
-  privacyPolicyLastUpdatedAt:
-    process.env.PRIVACY_POLICY_LAST_UPDATED_AT || "",
-
-  contactRetentionMonths: Number(
-    process.env.CONTACT_RETENTION_MONTHS || 12
-  ),
+  privacyPolicyVersion: process.env.PRIVACY_POLICY_VERSION || "v1.0",
+  privacyPolicyLastUpdatedAt: process.env.PRIVACY_POLICY_LAST_UPDATED_AT || "",
+  contactRetentionMonths: Number(process.env.CONTACT_RETENTION_MONTHS || 12),
 };
+
+console.log("Resolved DB config:", {
+  host: env.dbHost,
+  port: env.dbPort,
+  database: env.dbName,
+  user: env.dbUser,
+});
