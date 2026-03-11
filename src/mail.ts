@@ -50,14 +50,16 @@ function buildText(data: ContactInput): string {
     lines.push(`Email : ${data.email}`);
     if (data.phone) {
       lines.push(`Téléphone : ${data.phone}`);
+      lines.push(`Contact téléphonique autorisé : ${data.allow_phone_contact ? "Oui" : "Non"}`);
     }
-    lines.push(`Contact téléphonique autorisé : ${data.allow_phone_contact ? "Oui" : "Non"}`);
+    lines.push(`Politique de confidentialité acceptée : Oui`);
   }
 
   if (data.request_type === "part") {
     lines.push(`Email : ${data.email}`);
     if (data.phone) {
       lines.push(`Téléphone : ${data.phone}`);
+      lines.push(`Contact téléphonique autorisé : ${data.allow_phone_contact ? "Oui" : "Non"}`);
     }
     lines.push(`Politique de confidentialité acceptée : Oui`);
   }
