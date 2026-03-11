@@ -5,9 +5,15 @@ import rateLimit from "express-rate-limit";
 import { env } from "./env";
 import { contactSchema } from "./validators";
 import { sendContactMail, verifyMailer } from "./mail";
-import { saveContactSubmission } from "./contact-storage";
+import {
+  saveContactSubmission,
+  markContactMailSent,
+  markContactMailFailed,
+} from "./contact-storage";
 
 const app = express();
+
+app.set("trust proxy", true);
 
 app.use(helmet());
 
@@ -39,11 +45,20 @@ app.post("/contact", contactLimiter, async (req, res) => {
       refererUrl: req.get("referer") ?? null,
     });
 
-    await sendContactMail(data);
+    try {
+      await sendContactMail(data);
+      await markContactMailSent(submissionId);
+    } catch (mailError) {
+      console.error("Erreur envoi mail :", mailError);
+      await markContactMailFailed({
+        submissionId,
+        error: mailError,
+      });
+    }
 
     return res.status(201).json({
       success: true,
-      message: "Formulaire envoyé",
+      message: "Formulaire enregistré",
       submissionId,
     });
   } catch (error: any) {

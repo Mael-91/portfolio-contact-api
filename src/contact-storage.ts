@@ -86,8 +86,12 @@ export async function saveContactSubmission(params: {
         user_agent,
         referer_url,
         status,
+        mail_status,
+        mail_error,
+        mail_sent_at,
+        mail_attempts,
         retention_until
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', 'pending', NULL, NULL, 0, ?)
     `,
     [
       data.request_type,
@@ -122,4 +126,43 @@ export async function saveContactSubmission(params: {
   );
 
   return result.insertId;
+}
+
+export async function markContactMailSent(submissionId: number) {
+  await db.execute(
+    `
+      UPDATE contact_submissions
+      SET
+        mail_status = 'sent',
+        mail_error = NULL,
+        mail_sent_at = ?,
+        mail_attempts = mail_attempts + 1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+    [toMysqlDateTime(new Date()), submissionId]
+  );
+}
+
+export async function markContactMailFailed(params: {
+  submissionId: number;
+  error: unknown;
+}) {
+  const { submissionId, error } = params;
+
+  const errorMessage =
+    error instanceof Error ? error.message : String(error);
+
+  await db.execute(
+    `
+      UPDATE contact_submissions
+      SET
+        mail_status = 'failed',
+        mail_error = ?,
+        mail_attempts = mail_attempts + 1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+    [errorMessage.slice(0, 5000), submissionId]
+  );
 }
