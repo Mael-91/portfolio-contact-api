@@ -8,10 +8,6 @@ const envPath = path.resolve(process.cwd(), envFile);
 
 dotenv.config({ path: envPath });
 
-console.log("Loaded env file:", envPath);
-console.log("NODE_ENV:", nodeEnv);
-console.log("DB_NAME from process.env:", process.env.DB_NAME);
-
 export const env = {
   nodeEnv,
 
@@ -38,10 +34,3 @@ export const env = {
   privacyPolicyLastUpdatedAt: process.env.PRIVACY_POLICY_LAST_UPDATED_AT || "",
   contactRetentionMonths: Number(process.env.CONTACT_RETENTION_MONTHS || 12),
 };
-
-console.log("Resolved DB config:", {
-  host: env.dbHost,
-  port: env.dbPort,
-  database: env.dbName,
-  user: env.dbUser,
-});
