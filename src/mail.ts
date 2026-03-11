@@ -48,13 +48,17 @@ function buildText(data: ContactInput): string {
   if (data.request_type === "pro") {
     lines.push(`Société : ${data.company}`);
     lines.push(`Email : ${data.email}`);
-    lines.push(`Téléphone : ${data.phone}`);
+    if (data.phone) {
+      lines.push(`Téléphone : ${data.phone}`);
+    }
     lines.push(`Contact téléphonique autorisé : ${data.allow_phone_contact ? "Oui" : "Non"}`);
   }
 
   if (data.request_type === "part") {
     lines.push(`Email : ${data.email}`);
-    lines.push(`Téléphone : ${data.phone}`);
+    if (data.phone) {
+      lines.push(`Téléphone : ${data.phone}`);
+    }
     lines.push(`Politique de confidentialité acceptée : Oui`);
   }
 
