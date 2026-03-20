@@ -10,6 +10,7 @@ import {
   markContactMailSent,
   markContactMailFailed,
 } from "./contact-storage";
+import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
 
 const app = express();
 
@@ -30,8 +31,55 @@ const contactLimiter = rateLimit({
   max: 10,
 });
 
+const allowedLegalDocumentTypes = [
+  "privacy_content",
+  "legal_notice",
+  "terms_private",
+  "terms_pro",
+] as const;
+
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/legal-documents/:type", async (req, res) => {
+  try {
+    const { type } = req.params;
+
+    if (!allowedLegalDocumentTypes.includes(type as any)) {
+      return res.status(400).json({
+        success: false,
+        message: "Type de document invalide",
+      });
+    }
+
+    const document = await getPublishedLegalDocumentByType(type);
+
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document introuvable",
+      });
+    }
+
+    return res.json({
+      success: true,
+      document: {
+        id: document.id,
+        documentType: document.document_type,
+        versionLabel: document.version_label,
+        contentHtml: document.content_html,
+        contentText: document.content_text,
+        publishedAt: document.published_at,
+      },
+    });
+  } catch (error) {
+    console.error("Erreur lecture document légal :", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+    });
+  }
 });
 
 app.post("/contact", contactLimiter, async (req, res) => {

@@ -1,9 +1,26 @@
 import { db } from "./db";
 
-export async function getPublishedLegalDocumentByType(type: string) {
+export type PublicLegalDocument = {
+  id: number;
+  document_type: string;
+  version_label: string;
+  content_html: string;
+  content_text: string | null;
+  published_at: Date | null;
+};
+
+export async function getPublishedLegalDocumentByType(
+  type: string
+): Promise<PublicLegalDocument | null> {
   const [rows]: any = await db.query(
     `
-    SELECT id, version_label
+    SELECT
+      id,
+      document_type,
+      version_label,
+      content_html,
+      content_text,
+      published_at
     FROM legal_documents
     WHERE document_type = ?
       AND status = 'published'
