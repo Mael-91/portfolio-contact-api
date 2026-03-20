@@ -4,6 +4,7 @@ import { db } from "./db";
 import { env } from "./env";
 import { ContactInput } from "./validators";
 import { buildEmailSnapshot } from "./mail";
+import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
 
 function addMonths(date: Date, months: number): Date {
   const copy = new Date(date);
@@ -60,6 +61,12 @@ export async function saveContactSubmission(params: {
   const allowPhoneContact =
     "allow_phone_contact" in data ? (data.allow_phone_contact ? 1 : 0) : 0;
 
+  const privacyDocument = await getPublishedLegalDocumentByType("privacy_content");
+
+  if (!privacyDocument) {
+    throw new Error("No published privacy policy found");
+  }
+
   const [result] = await db.execute<ResultSetHeader>(
     `
       INSERT INTO contact_submissions (
@@ -79,8 +86,8 @@ export async function saveContactSubmission(params: {
         processing_context,
         legal_basis,
         processing_purpose,
-        privacy_policy_version,
-        privacy_policy_last_updated_at,
+        privacy_policy_accepted_at,
+        privacy_policy_document_id,
         privacy_notice_presented,
         ip_hash,
         user_agent,
@@ -91,7 +98,13 @@ export async function saveContactSubmission(params: {
         mail_sent_at,
         mail_attempts,
         retention_until
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'new', 'pending', NULL, NULL, 0, ?)
+      )
+      VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+        CURRENT_TIMESTAMP, ?, ?,
+        ?, ?, ?,
+        'new', 'pending', NULL, NULL, 0, ?
+      )
     `,
     [
       data.request_type,
@@ -113,10 +126,7 @@ export async function saveContactSubmission(params: {
       }),
       legalBasis,
       resolvePurpose(data),
-      env.privacyPolicyVersion,
-      env.privacyPolicyLastUpdatedAt
-        ? toMysqlDateTime(new Date(env.privacyPolicyLastUpdatedAt))
-        : null,
+      privacyDocument.id,
       1,
       hashIp(ip),
       userAgent?.slice(0, 255) ?? null,
@@ -149,9 +159,7 @@ export async function markContactMailFailed(params: {
   error: unknown;
 }) {
   const { submissionId, error } = params;
-
-  const errorMessage =
-    error instanceof Error ? error.message : String(error);
+  const errorMessage = error instanceof Error ? error.message : String(error);
 
   await db.execute(
     `

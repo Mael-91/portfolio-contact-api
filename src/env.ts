@@ -30,7 +30,5 @@ export const env = {
   dbPass: process.env.DB_PASS || "",
 
   ipHashKey: process.env.IP_HASH_KEY || "",
-  privacyPolicyVersion: process.env.PRIVACY_POLICY_VERSION || "v1.0",
-  privacyPolicyLastUpdatedAt: process.env.PRIVACY_POLICY_LAST_UPDATED_AT || "",
   contactRetentionMonths: Number(process.env.CONTACT_RETENTION_MONTHS || 12),
 };
