@@ -29,6 +29,9 @@ export const env = {
   dbUser: process.env.DB_USER || "",
   dbPass: process.env.DB_PASS || "",
 
+  adminWsUrl: process.env.ADMIN_WS_URL || "",
+  adminWsEnabled: String(process.env.ADMIN_WS_ENABLED) === "true",
+
   ipHashKey: process.env.IP_HASH_KEY || "",
   contactRetentionMonths: Number(process.env.CONTACT_RETENTION_MONTHS || 12),
 };

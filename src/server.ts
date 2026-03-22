@@ -11,6 +11,7 @@ import {
   markContactMailFailed,
 } from "./contact-storage";
 import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
+import { emitContactCreatedEvent } from "./admin-ws";
 
 const app = express();
 
@@ -91,6 +92,16 @@ app.post("/contact", contactLimiter, async (req, res) => {
       ip: req.ip ?? null,
       userAgent: req.get("user-agent") ?? null,
       refererUrl: req.get("referer") ?? null,
+    });
+
+    await emitContactCreatedEvent({
+      type: "contact.created",
+      payload: {
+        submissionId,
+        requestType: data.request_type,
+        email: data.email,
+        createdAt: new Date().toISOString(),
+      },
     });
 
     try {
