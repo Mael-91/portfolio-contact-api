@@ -11,6 +11,11 @@ type ContactCreatedEvent = {
   };
 };
 
+type SecuredEvent = {
+  token: string;
+  event: ContactCreatedEvent;
+};
+
 let socket: WebSocket | null = null;
 let isConnecting = false;
 
@@ -44,18 +49,14 @@ function connect(): Promise<WebSocket | null> {
     });
 
     ws.on("close", () => {
-      if (socket === ws) {
-        socket = null;
-      }
+      if (socket === ws) socket = null;
       isConnecting = false;
       console.warn("WebSocket admin fermé");
     });
 
     ws.on("error", (error) => {
       console.error("Erreur WebSocket admin :", error);
-      if (socket === ws) {
-        socket = null;
-      }
+      if (socket === ws) socket = null;
       isConnecting = false;
       resolve(null);
     });
@@ -67,11 +68,16 @@ export async function emitContactCreatedEvent(event: ContactCreatedEvent) {
     const ws = await connect();
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-      console.warn("WebSocket admin indisponible, événement non envoyé");
+      console.warn("WebSocket admin indisponible");
       return;
     }
 
-    ws.send(JSON.stringify(event));
+    const securedEvent: SecuredEvent = {
+      token: env.internalEventsSecret,
+      event,
+    };
+
+    ws.send(JSON.stringify(securedEvent));
   } catch (error) {
     console.error("Échec émission WebSocket admin :", error);
   }

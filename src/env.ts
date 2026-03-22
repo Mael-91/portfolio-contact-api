@@ -31,6 +31,7 @@ export const env = {
 
   adminWsUrl: process.env.ADMIN_WS_URL || "",
   adminWsEnabled: String(process.env.ADMIN_WS_ENABLED) === "true",
+  internalEventsSecret: process.env.INTERNAL_EVENTS_SECRET || "",
 
   ipHashKey: process.env.IP_HASH_KEY || "",
   contactRetentionMonths: Number(process.env.CONTACT_RETENTION_MONTHS || 12),
