@@ -13,6 +13,7 @@ import {
 import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
 import { sendContactCreatedEvent } from "./admin-events";
 import { getActivePortfolioImages } from "./portfolio-images-storage";
+import { getPublicServices } from "./services-storage";
 
 const app = express();
 
@@ -42,6 +43,19 @@ const allowedLegalDocumentTypes = [
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/services", async (_req, res) => {
+  try {
+    const services = await getPublicServices();
+    return res.json(services);
+  } catch (error) {
+    console.error("Erreur services :", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+    });
+  }
 });
 
 app.get("/portfolio-images", async (_req, res) => {
