@@ -12,6 +12,7 @@ import {
 } from "./contact-storage";
 import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
 import { sendContactCreatedEvent } from "./admin-events";
+import { getActivePortfolioImages } from "./portfolio-images-storage";
 
 const app = express();
 
@@ -41,6 +42,22 @@ const allowedLegalDocumentTypes = [
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/portfolio-images", async (_req, res) => {
+  try {
+    const images = await getActivePortfolioImages();
+
+    res.json(images);
+
+  } catch (error) {
+    console.error("Erreur portfolio images:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+    });
+  }
 });
 
 app.get("/legal-documents/:type", async (req, res) => {
