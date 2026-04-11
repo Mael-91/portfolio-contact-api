@@ -14,6 +14,7 @@ import { getPublishedLegalDocumentByType } from "./legal-documents-storage";
 import { sendContactCreatedEvent } from "./admin-events";
 import { getActivePortfolioImages } from "./portfolio-images-storage";
 import { getPublicServices } from "./services-storage";
+import { getPublicAboutSection } from "./about-storage";
 
 const app = express();
 
@@ -107,6 +108,27 @@ app.get("/legal-documents/:type", async (req, res) => {
     });
   } catch (error) {
     console.error("Erreur lecture document légal :", error);
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+    });
+  }
+});
+
+app.get("/about", async (_req, res) => {
+  try {
+    const about = await getPublicAboutSection();
+
+    if (!about) {
+      return res.status(404).json({
+        success: false,
+        message: "Section à propos introuvable",
+      });
+    }
+
+    return res.json(about);
+  } catch (error) {
+    console.error("Erreur about :", error);
     return res.status(500).json({
       success: false,
       message: "Erreur serveur",
