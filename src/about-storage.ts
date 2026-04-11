@@ -19,7 +19,7 @@ export async function getPublicAboutSection(): Promise<PublicAboutSection | null
       image_url,
       image_alt,
       text_html
-    FROM about_section
+    FROM about_content
     LIMIT 1
     `
   );
