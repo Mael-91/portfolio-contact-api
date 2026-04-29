@@ -40,6 +40,7 @@ export type PublicServiceCard = {
 };
 
 export type PublicServicesResponse = {
+  enabled: boolean
   pro: {
     introEnabled: boolean;
     introHtml: string | null;
@@ -51,6 +52,26 @@ export type PublicServicesResponse = {
     cards: PublicServiceCard[];
   };
 };
+
+async function getBooleanSetting(key: string): Promise<boolean> {
+  const [rows]: any = await db.query(
+    `
+    SELECT value
+    FROM app_settings
+    WHERE \`key_name\` = ?
+    LIMIT 1
+    `,
+    [key]
+  );
+
+  if (!rows.length) {
+    return false;
+  }
+
+  const value = rows[0].value;
+
+  return value === "true" || value === "1";
+}
 
 export async function getPublicServices(): Promise<PublicServicesResponse> {
   const [sectionRows] = await db.query(
@@ -114,7 +135,10 @@ export async function getPublicServices(): Promise<PublicServicesResponse> {
     bulletsByCardId.set(bullet.card_id, existing);
   }
 
+  const servicesEnabled = await getBooleanSetting("services_section_enabled");
+
   const response: PublicServicesResponse = {
+    enabled: servicesEnabled,
     pro: {
       introEnabled: false,
       introHtml: null,
