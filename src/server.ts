@@ -15,6 +15,7 @@ import { sendContactCreatedEvent } from "./admin-events";
 import { getActivePortfolioImages } from "./portfolio-images-storage";
 import { getPublicServices } from "./services-storage";
 import { getPublicAboutSection } from "./about-storage";
+import { getPortfolioContactPage, getPortfolioHeroPage, getPortfolioIdentity, getPortfolioPortfolioPage } from "./portfolio-settings-storage";
 
 const app = express();
 
@@ -44,6 +45,26 @@ const allowedLegalDocumentTypes = [
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/portfolio/identity", async (_req, res) => {
+  const data = await getPortfolioIdentity();
+  return res.json(data);
+});
+
+app.get("/portfolio/hero-page", async (_req, res) => {
+  const data = await getPortfolioHeroPage();
+  return res.json(data);
+});
+
+app.get("/portfolio/portfolio-page", async (_req, res) => {
+  const data = await getPortfolioPortfolioPage();
+  return res.json(data);
+});
+
+app.get("/portfolio/contact-page", async (_req, res) => {
+  const data = await getPortfolioContactPage();
+  return res.json(data);
 });
 
 app.get("/services", async (_req, res) => {
